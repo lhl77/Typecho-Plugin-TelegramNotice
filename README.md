@@ -11,11 +11,8 @@
 [![Status](https://img.shields.io/badge/Status-Active-success)](#)
 [![PRs](https://img.shields.io/badge/PRs-Welcome-brightgreen)](#contributing)
 
-
-
 Typecho 插件：通过 Telegram 机器人推送评论通知，并提供后台文章手动推送（支持多 Chat ID 群发、邮箱绑定、Telegram 回复评论、评论快捷审核）。
 
-> Tag 格式：`v1.0.0`（用于插件内版本检查与 GitHub 发布对应）
 
 ---
 
@@ -33,7 +30,7 @@ Typecho 插件：通过 Telegram 机器人推送评论通知，并提供后台�
 
 ## 环境要求
 
-- Typecho（1.x）
+- Typecho（1.2.1+）
 - PHP 7.2+（建议 7.4/8.x）
 - 站点需可被 Telegram 访问（Webhook 必须是公网 HTTPS 可达）
 
