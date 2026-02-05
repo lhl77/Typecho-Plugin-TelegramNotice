@@ -7,7 +7,7 @@
  * @package TelegramNotice
  * @author LHL
  * @version 1.0.0
- * @link https://github.com/lhl77/Typecho-Plugin-TelegramComment
+ * @link https://github.com/lhl77/Typecho-Plugin-TelegramNotice
  */
 
 namespace TypechoPlugin\TelegramNotice;
@@ -94,7 +94,7 @@ class Plugin implements PluginInterface
         echo '<div class="typecho-option typecho-option-submit">';
         echo '  <label class="typecho-label">' . _t('TelegramNotice') . '</label>';
         echo '  <p class="description" style="margin-top:6px;">' . _t('Telegram 推送评论通知与审核（支持多 Chat ID 群发、邮箱绑定、评论回复）。') . '</p>';
-        echo '  <a class="typecho-label" style="margin-top:6px;" target="_blank" href="https://github.com/lhl77/Typecho-Plugin-TelegramComment">' . _t('Github项目') . '</a>&nbsp;<a class="typecho-label" style="margin-top:6px;" href="https://blog.lhl.one" target="_blank">' . _t('作者博客') . '</a><br/><br/>';
+        echo '  <a class="typecho-label" style="margin-top:6px;" target="_blank" href="https://github.com/lhl77/Typecho-Plugin-TelegramNotice">' . _t('Github项目') . '</a>&nbsp;<a class="typecho-label" style="margin-top:6px;" href="https://blog.lhl.one" target="_blank">' . _t('作者博客') . '</a><br/><br/>';
         echo '  <label class="typecho-label">' . _t('Webhook 操作') . '</label>';
         echo $needSet
             ? '  <p class="description" id="tg-webhook-hint" style="color:#d63638;">' . _t('检测结果：需要配置（Webhook 未设置或 URL 不一致）。请点击“一键配置 Webhook”。') . '</p>'
