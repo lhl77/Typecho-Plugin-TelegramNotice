@@ -92,6 +92,9 @@ class Plugin implements PluginInterface
         $actionBase = rtrim((string)Utils\Helper::options()->siteUrl, '/') . '/action/telegram-comment';
 
         echo '<div class="typecho-option typecho-option-submit">';
+        echo '  <label class="typecho-label">' . _t('TelegramNotice') . '</label>';
+        echo '  <p class="description" style="margin-top:6px;">' . _t('Telegram 推送评论通知与审核（支持多 Chat ID 群发、邮箱绑定、评论回复）。') . '</p>';
+        echo '  <a class="typecho-label" style="margin-top:6px;" target="_blank" href="https://github.com/lhl77/Typecho-Plugin-TelegramComment">' . _t('Github项目') . '</a>&nbsp;<a class="typecho-label" style="margin-top:6px;" href="https://blog.lhl.one" target="_blank">' . _t('作者博客') . '</a><br/><br/>';
         echo '  <label class="typecho-label">' . _t('Webhook 操作') . '</label>';
         echo $needSet
             ? '  <p class="description" id="tg-webhook-hint" style="color:#d63638;">' . _t('检测结果：需要配置（Webhook 未设置或 URL 不一致）。请点击“一键配置 Webhook”。') . '</p>'
@@ -222,7 +225,7 @@ class Plugin implements PluginInterface
             null,
             '',
             _t('Bot Token'),
-            _t('从 @BotFather 获取的 token，例如：123456:ABC-DEF...')
+            _t('从 <a href="https://t.me/botfather">@BotFather</a> 获取的 token，例如：123456:ABC-DEF...')
         );
         $form->addInput($token);
 
@@ -230,7 +233,7 @@ class Plugin implements PluginInterface
             'chatId',
             null,
             '',
-            _t('默认 Chat ID（可多个）'),
+            _t('默认 Chat ID（必填，可多个）'),
             _t('多个 chat_id 用逗号或换行分隔；个人为纯数字；群组/频道通常为 -100 开头的数字')
         );
         $form->addInput($chatId);
@@ -239,7 +242,7 @@ class Plugin implements PluginInterface
             'emailChatMap',
             null,
             "",
-            _t('邮箱 -> Chat ID 绑定'),
+            _t('邮箱 -> Chat ID 绑定 (选填，如需回复功能则必填)'),
             _t("每行一条：email=chat_id\n示例：user@example.com=123456789\n命中后可单独推送给该 chat_id（并可叠加默认群发）")
         );
         $form->addInput($emailMap);
@@ -258,7 +261,7 @@ class Plugin implements PluginInterface
             'webhookSecret',
             null,
             '',
-            _t('Webhook Secret'),
+            _t('Webhook Secret（可留空，建议填写）'),
             _t('用于校验 webhook 请求来源（建议生成一段随机字符串）。将拼接到 /action/telegram-comment?do=webhook&secret=...')
         );
         $form->addInput($webhookSecret);
