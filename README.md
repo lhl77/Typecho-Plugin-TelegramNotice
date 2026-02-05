@@ -138,9 +138,3 @@ foo@bar.com=-1001234567890
 ## 许可
 
 MIT（以仓库 `LICENSE` 为准）
-
----
-
-## 致谢 / 链接
-
-- 项目地址：<https://github.com/lhl77/Typecho
