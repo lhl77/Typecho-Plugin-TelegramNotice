@@ -1,160 +1,149 @@
 # Typecho插件：TelegramNotice
 
+[![Latest tag](https://img.shields.io/github/v/tag/lhl77/Typecho-Plugin-TelegramNotice?label=tag&sort=semver)](https://github.com/lhl77/Typecho-Plugin-TelegramNotice/tags)
+[![Release](https://img.shields.io/github/v/release/lhl77/Typecho-Plugin-TelegramNotice?label=release&sort=semver)](https://github.com/lhl77/Typecho-Plugin-TelegramNotice/releases)
+[![Stars](https://img.shields.io/github/stars/lhl77/Typecho-Plugin-TelegramNotice?style=flat)](https://github.com/lhl77/Typecho-Plugin-TelegramNotice/stargazers)
+[![License](https://img.shields.io/github/license/lhl77/Typecho-Plugin-TelegramNotice)](https://github.com/lhl77/Typecho-Plugin-TelegramNotice/blob/main/LICENSE)
 [![Typecho](https://img.shields.io/badge/Typecho-Plugin-blue)](https://typecho.org/)
 [![PHP](https://img.shields.io/badge/PHP-%3E%3D7.0-777bb4?logo=php&logoColor=white)](https://www.php.net/)
 [![Telegram Bot API](https://img.shields.io/badge/Telegram-Bot%20API-26a5e4?logo=telegram&logoColor=white)](https://core.telegram.org/bots/api)
 [![Webhook](https://img.shields.io/badge/Webhook-Supported-success)](https://core.telegram.org/bots/api#setwebhook)
-[![Inline Keyboard](https://img.shields.io/badge/Inline%20Keyboard-Supported-success)](https://core.telegram.org/bots/api#inlinekeyboardmarkup)
-[![License](https://img.shields.io/badge/License-MIT-green)](#license)
 [![Status](https://img.shields.io/badge/Status-Active-success)](#)
 [![PRs](https://img.shields.io/badge/PRs-Welcome-brightgreen)](#contributing)
 
-Telegram 推送 Typecho 评论通知与审核（支持多 Chat ID 群发、邮箱绑定、并支持在 Telegram 内直接“回复评论”）。
+
+
+Typecho 插件：通过 Telegram 机器人推送评论通知，并提供后台文章手动推送（支持多 Chat ID 群发、邮箱绑定、Telegram 回复评论、评论快捷审核）。
+
+> Tag 格式：`v1.0.0`（用于插件内版本检查与 GitHub 发布对应）
 
 ---
 
-## 功能特性
+## 功能清单
 
-- 评论通知推送到 Telegram（支持 HTML 模板）
-- 支持多个默认 `chat_id` 群发（逗号/换行分隔）
-- 支持 **邮箱 -> Chat ID** 绑定：命中邮箱时可定向推送
-- 支持评论审核按钮（Inline Keyboard）：
-  - 通过 / 垃圾 / 删除https://blog.lhl.one/artical/815.html
-- 支持在 Telegram 中 **直接回复推送消息** 来发布 Typecho 回复评论
-- Webhook 一键配置/检测（插件设置页内按钮触发 AJAX）
-(TODO:文章推送)
+- 评论通知推送（HTML 模板）
+- 多 Chat ID 群发（逗号/换行分隔）
+- 邮箱 → Chat ID 绑定（用于“定向推送 + 可在 Telegram 中回复”）
+- Telegram 内联按钮：通过 / 垃圾 / 删除（回调走 Webhook）
+- 后台管理页：文章列表手动推送到频道/群（可搜索、分页）
+- 后台：一键检测/配置 Webhook
+- 后台：版本检查（GitHub Tags），发现新版本红色提示并提供下载按钮
+
 ---
 
-## 目录结构说明
+## 环境要求
 
-你的仓库里同时存在两套文件（根目录与 `TelegramNotice/` 目录），核心实现位于：
-
-- 插件主类：[`TypechoPlugin\TelegramNotice\Plugin`](TelegramNotice/Plugin.php)（[TelegramNotice/Plugin.php](TelegramNotice/Plugin.php)）
-- Action（Webhook/AJAX）：[`TypechoPlugin\TelegramNotice\TelegramComment_Action`](TelegramNotice/TelegramComment_Action.php)（[TelegramNotice/TelegramComment_Action.php](TelegramNotice/TelegramComment_Action.php)）
-
-> 建议实际部署时只保留一套代码路径，避免 Typecho 加载到旧文件导致行为不一致。
+- Typecho（1.x）
+- PHP 7.2+（建议 7.4/8.x）
+- 站点需可被 Telegram 访问（Webhook 必须是公网 HTTPS 可达）
 
 ---
 
 ## 安装
 
-1. 将本项目放到 Typecho 插件目录，例如：
+1. 下载插件并解压到：
    - `usr/plugins/TelegramNotice/`
-2. 确保插件目录名与插件包名一致（通常目录名应为 `TelegramNotice`）
-3. 后台启用插件：控制台 → 插件 → **TelegramNotice** → 启用
+2. 确认目录结构类似：
+   - `usr/plugins/TelegramNotice/Plugin.php`
+   - `usr/plugins/TelegramNotice/TelegramComment_Action.php`
+   - `usr/plugins/TelegramNotice/push.php`
+3. 进入 Typecho 后台 → **控制台 → 插件**，启用 **TelegramNotice**。
 
 ---
 
-## 配置说明（后台插件设置）
+## 配置说明
 
-在插件设置页配置以下字段（对应 [`TypechoPlugin\TelegramNotice\Plugin::config`](TelegramNotice/Plugin.php)）：
+进入 Typecho 后台 → 插件 → TelegramNotice 设置：
 
 ### 1) Bot Token（必填）
-
 从 [@BotFather](https://t.me/botfather) 获取。
 
-### 2) 默认 Chat ID（必填，可多个）
+### 2) Webhook Secret（建议填写）
+用于校验 Telegram Webhook 请求来源，防止被伪造请求调用管理接口。
 
-- 私聊：纯数字（如 `123456789`）
-- 群组/频道：通常 `-100` 开头（如 `-1001234567890`）
+插件会使用类似 URL：
+
+- `https://你的域名/action/telegram-comment?do=webhook&secret=xxxx`
+
+### 3) 评论推送 Chat ID（必填，可多个）
 - 多个用 **逗号** 或 **换行** 分隔
+- 私聊通常为纯数字
+- 群组/频道通常为 `-100...` 开头
 
-### 3) Webhook Secret（建议填写）
-
-用于校验 webhook 请求来源（会拼到 URL 的 `secret=...` 上）：
-- Webhook URL 形如：`/action/telegram-comment?do=webhook&secret=xxx`
-
-### 4) 邮箱 -> Chat ID 绑定（可选，但要用“Telegram 回复评论”则必填）
-
+### 4) 邮箱 → Chat ID 绑定（可选）
 格式：每行一条
 
 ```text
 user@example.com=123456789
-admin@example.com=-1001234567890
+foo@bar.com=-1001234567890
 ```
 
-### 5) 命中邮箱绑定时仍群发默认 Chat ID
+说明：
+- 当评论邮箱命中绑定时，可定向推送给对应 chat_id
+- 若开启“命中邮箱绑定时仍群发默认 Chat ID”，则会同时群发
 
-- `1`：是（默认）
-- `0`：否（只发给绑定的 chat_id）
-
-### 6) 消息模板（HTML）
-
-默认模板变量（来自 [`TypechoPlugin\TelegramNotice\Plugin::renderTemplate`](TelegramNotice/Plugin.php)）：
-- `{title}` `{author}` `{text}` `{permalink}` `{ip}` `{created}` `{coid}` `{mail}`
+### 5) 模板
+- 评论推送模板：支持变量 `{title} {author} {text} {permalink} ...`
+- 文章推送模板：支持变量 `{title} {excerpt} {permalink} {created} {cid}`
 
 ---
 
-## Webhook 配置（推荐）
+## Webhook 一键配置 / 检测
 
-插件设置页顶部提供：
+在插件配置页点击：
 - **一键配置 Webhook**
 - **重新检测**
 
-对应 Action 入口：`/action/telegram-comment`  
-由 [`TypechoPlugin\TelegramNotice\TelegramComment_Action::execute`](TelegramNotice/TelegramComment_Action.php) 分发：
-- `do=webhookCheck`
-- `do=webhookSet`
-- `do=webhook`（Telegram Webhook 回调）
-
-插件也会在以下场景尽量自动确保 webhook 正确：
-- 启用插件时（[`TypechoPlugin\TelegramNotice\Plugin::activate`](TelegramNotice/Plugin.php)）
-- 有新评论推送时（[`TypechoPlugin\TelegramNotice\Plugin::onFinishComment`](TelegramNotice/Plugin.php)）
-- 保存插件配置时强制 setWebhook（[`TypechoPlugin\TelegramNotice\Plugin::configCheck`](TelegramNotice/Plugin.php)）
+提示为绿色表示 URL 已匹配当前站点配置。
 
 ---
 
-## Telegram 内审核评论
+## 手动推送文章（后台管理页）
 
-推送消息会带 Inline Keyboard（见 [`TypechoPlugin\TelegramNotice\Plugin::buildModerationKeyboard`](TelegramNotice/Plugin.php)）：
-- 通过：设置评论状态为 `approved`
-- 垃圾：设置评论状态为 `spam`
-- 删除：删除评论记录
-
-回调处理在 [`TypechoPlugin\TelegramNotice\TelegramComment_Action::handleCallback`](TelegramNotice/TelegramComment_Action.php)。
+后台 → 扩展 → **Telegram文章推送**  
+支持：
+- 搜索标题/内容
+- 分页
+- 单篇点击“推送”按钮推送到 `pushChatId`（支持多个）
 
 ---
 
-## Telegram 内直接回复评论（Reply-to 发布回复）
+## Chat ID 获取方法（简要）
 
-工作流程：
-
-1. 插件推送消息末尾会追加标记（见 [`TypechoPlugin\TelegramNotice\Plugin::onFinishComment`](TelegramNotice/Plugin.php)）：
-
-   `#TG:cid:coid:sig`
-
-2. 你在 Telegram 中 **回复这条推送消息**，输入文本并发送。
-3. Webhook 收到 `message.reply_to_message` 后解析标记并写入 Typecho 评论表（见 [`TypechoPlugin\TelegramNotice\TelegramComment_Action::handleTelegramWebhook`](TelegramNotice/TelegramComment_Action.php)）。
-
-安全限制：
-- 必须当前 `chat_id` 能在“邮箱 -> Chat ID 绑定”里反查到邮箱（防止陌生人滥用）
-- 必须签名校验通过（签名算法见 [`TypechoPlugin\TelegramNotice\Plugin::signCallback`](TelegramNotice/Plugin.php)）
-- 原评论必须为 `approved` 才允许回复
-
-注：回复时ip取`127.0.0.1`,Agent取`TelegramReply`
+- 私聊：对机器人发消息后，调用 `getUpdates` 或用工具机器人查询
+- 群/频道：将机器人加入群/频道并发一条消息，再用 `getUpdates` 获取 chat.id  
+  （频道 chat_id 通常为 `-100...`）
 
 ---
 
 ## 常见问题
 
-### 1) 收不到按钮回调 / 回复消息
-确认 `setWebhook` 时包含 `allowed_updates`（本插件设置为 `callback_query` 和 `message`），见：
-- [`TypechoPlugin\TelegramNotice\Plugin::tgSetWebhook`](TelegramNotice/Plugin.php)
+### 1) Webhook 配置后仍收不到消息
+- 确认站点 **HTTPS** 且公网可达
+- 服务器/防火墙未拦截
+- 机器人 token 正确
+- 后台“重新检测”显示已正确配置
 
-### 2) Webhook URL 不一致
-检查：
-- Typecho 的 `站点地址`（`siteUrl`）是否正确指向可公网访问的域名
-- 是否启用了 HTTPS（Telegram 推荐 HTTPS）
-- `webhookSecret` 是否变化（变化后需要重新 setWebhook）
-
----
-
-## 贡献
-
-欢迎提交 Issue/PR
+### 2) 推送按钮点了没反应
+- 检查 `pushChatId` 是否已配置
+- 检查 Bot 是否在对应群/频道且有发言权限
+- 查看服务器 PHP 错误日志
 
 ---
 
-## License
+## 更新
 
-MIT License
+- 插件配置页内置 **版本检查**（读取 GitHub Tags，Tag 格式 `v1.0.0`）
+- 发现新版本会红色提示并提供“前往下载更新”按钮
+
+---
+
+## 许可
+
+MIT（以仓库 `LICENSE` 为准）
+
+---
+
+## 致谢 / 链接
+
+- 项目地址：<https://github.com/lhl77/Typecho
