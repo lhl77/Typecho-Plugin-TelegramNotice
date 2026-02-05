@@ -1,4 +1,4 @@
-# Typecho-Plugin-TelegramComment（TelegramNotice）
+# Typecho-Plugin-TelegramNotice
 
 [![Typecho](https://img.shields.io/badge/Typecho-Plugin-blue)](https://typecho.org/)
 [![PHP](https://img.shields.io/badge/PHP-%3E%3D7.0-777bb4?logo=php&logoColor=white)](https://www.php.net/)
